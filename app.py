@@ -62,9 +62,9 @@ async def main(page: ft.Page):
         nonlocal sender, recipient
         sender, recipient = recipient, sender
         keyStatusText.value = "No key selected" if sender["privkey"] is None else "Ready"
-        keySave.visible = False if sender["privkey"] is None else True
+        keySend.visible = keySave.visible = False if sender["privkey"] is None else True
         friendKeyStatusText.value = "No key received" if sender["friendkey"] is None else "Ready"
-        friendKeySave.visible = False if sender["friendkey"] is None else True
+        sendButtons.visible = friendKeySave.visible = False if sender["friendkey"] is None else True
         if sender["rcvType"] is None:
             rcvNone.visible = True
             rcvText.visible = rcvFile.visible = False
@@ -97,17 +97,17 @@ async def main(page: ft.Page):
         sender["pubkey"] = (key[0], key[2])
         sender["keyFilename"] = e.files[0].name
         keyStatusText.value = "Ready"
-        keySave.visible = True
+        keySend.visible = keySave.visible = True
         selfKey.update()
         return
     
-    async def handleGenerateKey(e): # mengubah penampilan (done)
+    async def handleGenerateKey(e):
         key = rsa.generate_key_pair()
         sender["privkey"]=key[1]
         sender["pubkey"]=key[0]
         print(sender["pubkey"])
         keyStatusText.value = "Ready"
-        keySave.visible = True
+        keySend.visible = keySave.visible = True
         selfKey.update()
         return
     
@@ -129,7 +129,7 @@ async def main(page: ft.Page):
             sender["friendkey"] = eval(f.read())
         sender["friendkeyFilename"] = e.files[0].name
         friendKeyStatusText.value = "Ready"
-        friendKeySave.visible = True
+        sendButtons.visible = friendKeySave.visible = True
         friendKey.update()
         return
     
@@ -166,7 +166,7 @@ async def main(page: ft.Page):
                 f.write(struct.pack('I',i))
         return
     
-    async def handleSendFileUpload(e): # mengubah penampilan
+    async def handleSendFileUpload(e):
         sender["sendFilename"] = e.files[0].name
         sender["sendFilepath"] = e.files[0].path
         sendFileInfo.value = sender["sendFilename"]
@@ -177,8 +177,8 @@ async def main(page: ft.Page):
         recipient["friendkey"] = sender["pubkey"]
         return
 
-    async def handleRcvText(e): # mengubah penampilan (done)
-        if e.control.text == "Show decrypted message": # butuh tambah decrypt di sini (done)
+    async def handleRcvText(e):
+        if e.control.text == "Show decrypted message":
 
             sender["rcvPlain"] = rsa.decrypt(sender["privkey"], sender["rcvCipher"]).decode('utf-8')
             
@@ -193,7 +193,7 @@ async def main(page: ft.Page):
         rcvText.update()
         return
     
-    async def handleEncryptSave(e): # butuh tambah decrypt di sini (done)
+    async def handleEncryptSave(e):
         if sendTextBox.visible:
             sender["sendPlain"] = sendTextBox.value
             text_base64 = str(base64.b64encode(sender["sendPlain"].encode('utf-8')).decode('utf-8'))
@@ -214,7 +214,7 @@ async def main(page: ft.Page):
             
         return
     
-    async def handleEncryptSend(e): # butuh tambah decrypt di sini (done)
+    async def handleEncryptSend(e):
         nonlocal recipient
         if sendTextBox.visible:
             print("TESTmeong")
@@ -277,7 +277,7 @@ async def main(page: ft.Page):
     )
     keyGen = ft.FilledButton("Generate Key", on_click=handleGenerateKey)
     keyUpload = ft.FilledTonalButton("Upload Private Key", on_click=keyUploader.pick_files)
-    keySend = ft.FilledButton("Send Public Key", on_click=handleSendKey)
+    keySend = ft.FilledButton("Send Public Key", on_click=handleSendKey, visible=False)
     keyPriSave = ft.FilledButton("Save Private Key", on_click=priKeyDownloader.get_directory_path)
     keyPubSave = ft.FilledTonalButton("Save Public Key", on_click=pubKeyDownloader.get_directory_path)
     keySave = ft.Row(
@@ -318,8 +318,8 @@ async def main(page: ft.Page):
         ],
         alignment = ft.MainAxisAlignment.CENTER
     )
-    friendKeySave = ft.FilledButton("Upload Public Key", on_click=friendKeyUploader.pick_files, visible=False)
-    friendKeyUpload = ft.FilledTonalButton("Save Public Key", on_click=friendKeyDownloader.get_directory_path)
+    friendKeyUpload = ft.FilledTonalButton("Upload Public Key", on_click=friendKeyUploader.pick_files)
+    friendKeySave = ft.FilledTonalButton("Save Public Key", on_click=friendKeyDownloader.get_directory_path, visible=False)
     friendKey = ft.Column(
         [
             friendKeyStatus,
@@ -400,15 +400,17 @@ async def main(page: ft.Page):
     )
     sendSaveButton = ft.FilledTonalButton("Encrypt and Save", on_click=sendFileDownloader.get_directory_path)
     sendButton = ft.FilledButton("Encrypt and Send", on_click=handleEncryptSend)
+    sendButtons = ft.Row(
+        [sendSaveButton, sendButton],
+        alignment = ft.MainAxisAlignment.CENTER,
+        visible = False
+    )
     sendBox = ft.Column(
         [
             sendSwitch,
             sendTextBox,
             sendFileBox,
-            ft.Row(
-                [sendSaveButton, sendButton],
-                alignment = ft.MainAxisAlignment.CENTER
-            )
+            sendButtons
         ],
         alignment = ft.MainAxisAlignment.CENTER
     )
