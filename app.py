@@ -183,7 +183,7 @@ async def main(page: ft.Page):
             sender["rcvPlain"] = rsa.decrypt(sender["privkey"], sender["rcvCipher"]).decode('utf-8')
             
             rcvTextBox.value = sender["rcvPlain"]
-            e.control.tex = "Show original message"
+            e.control.text = "Show original message"
         else:
             rcvTextBox.value = sender["rcvCipher"]
             e.control.text = "Show decrypted message"
