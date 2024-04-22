@@ -106,7 +106,6 @@ async def main(page: ft.Page):
         key = rsa.generate_key_pair()
         sender["privkey"]=key[1]
         sender["pubkey"]=key[0]
-        print(sender["pubkey"])
         keyStatusText.value = "Ready"
         keySend.visible = keySave.visible = True
         selfKey.update()
@@ -226,11 +225,7 @@ async def main(page: ft.Page):
     async def handleEncryptSend(e):
         nonlocal recipient
         if sendTextBox.visible:
-            print("TESTmeong")
-            print(sendTextBox.value)
             text_base64 = base64.b64encode((sendTextBox.value).encode('utf-8')).decode('utf-8')
-            print(text_base64)
-            print(recipient["pubkey"])
             recipient["rcvCipher"] = rsa.encrypt(recipient["pubkey"],text_base64)
             recipient["rcvType"] = "text"
         else:
@@ -448,7 +443,8 @@ async def main(page: ft.Page):
                     sendBox
                 ],
                 horizontal_alignment = ft.CrossAxisAlignment.CENTER
-            )
+            ),
+            theme = ft.Theme(color_scheme=ft.ColorScheme(primary=ft.colors.GREEN)) # Wangsaff theme
         )
     )
     page.add(content)
