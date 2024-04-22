@@ -1,9 +1,9 @@
 import flet as ft
 import base64
 from time import time
-from random import randbytes
+# from random import randbytes
 import struct
-import RSA_function as rsa
+import RSA as rsa
 
 # async def genkey():
 #     return ((210617, 266207), (65537, 266207))
