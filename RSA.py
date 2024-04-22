@@ -17,8 +17,8 @@ def isprime(n):
 
 def generate_prime_number():
     while True:
-        # generate random number between 100 and 1000
-        p = random.randint(100, 1000)
+        # generate random number between 10000 and 50000
+        p = random.randint(10000, 20000)
         if isprime(p):
             return p
 
@@ -33,8 +33,6 @@ def generate_key_pair():
     d = pow(e, -1, phi)
     public_key = (e, n)
     private_key = (d, n)
-    # save key pair to file (private_key.pri, public_key.pub)
-    save_key_pair(public_key, private_key)
     return public_key, private_key
 
 def save_key_pair(public_key, private_key):
@@ -57,18 +55,16 @@ def load_key_pair():
 
 def encrypt(public_key, base64_text):
     
-    base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+    base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
     # convert plaintext to base64
     message = ""
 
     for char in base64_text:
         # convert base64 to number based on index
-        if char == "=": # padding
-            break
         char_index = base64_chars.find(char)
         message += str(char_index).zfill(2)
     # split message into blocks of x (mi < n, for all i)
-    x = 5
+    x = 4
     message = [int(message[i:i + x]) for i in range(0, len(message), x)]
     # encrypt message
     e, n = public_key
@@ -81,19 +77,23 @@ def decrypt(private_key, ciphertext):
     message = [pow(char, d, n) for char in ciphertext]
     
     # convert message to string
-    x = 5
+    x = 4
     message = "".join([str(char).zfill(x) for char in message])
     # convert message to base64
-    base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+    base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
     # split message into blocks of 2
     blocks = [message[i:i+2] for i in range(0, len(message), 2)]
+    print("blocks")
+    print(blocks)
     # convert blocks to base64
     plaintext = "".join([base64_chars[int(block)] for block in blocks])
+    print("plaintext")
+    print(plaintext)
     
     # decode base64
-    missing_padding = len(plaintext) % 4
-    if missing_padding != 0:
-        plaintext += '=' * (4 - missing_padding)
+    # missing_padding = len(plaintext) % 4
+    # if missing_padding != 0:
+    #     plaintext += '=' * (missing_padding)
     return base64.b64decode(plaintext)
 
 
@@ -106,27 +106,28 @@ if __name__ == '__main__':
     print(pub1)
     print(pri1)
 
-    text = 'hello world'
+    text = 'tes'
     b64 = str(base64.b64encode(text.encode('utf-8')).decode('utf-8'))
+    print(b64)
     ciphertext = encrypt(public_key, b64)
     print(ciphertext)
     plaintext = decrypt(private_key, ciphertext).decode('utf-8')
     print(plaintext)
 
     # file 
-    with open('files/awokawok.jpg', 'rb') as file:
-        data = file.read()
-        base64_data = base64.b64encode(data).decode('utf-8')
-        ciphertext = encrypt(public_key, base64_data)
-        with open('test_encrypted.jpg', 'wb') as file:
-            for integer in ciphertext:
-                file.write(struct.pack('I', integer))
-    with open('test_encrypted.jpg', 'rb') as file:
-        data = file.read()
-        num_integers = len(data) // 4
-        ciphertext_in_file = struct.unpack(f"{num_integers}I", data)
-        plaintext = decrypt(private_key, ciphertext_in_file)
-        with open('test_decrypted.jpg', 'wb') as file:
-            file.write(plaintext)
+    # with open('build\K01_18221163_Aufar_Ramadhan_Milestone3.pdf', 'rb') as file:
+    #     data = file.read()
+    #     base64_data = base64.b64encode(data).decode('utf-8')
+    #     ciphertext = encrypt(public_key, base64_data)
+    #     with open('test_encrypted.pdf', 'wb') as file:
+    #         for integer in ciphertext:
+    #             file.write(struct.pack('I', integer))
+    # with open('test_encrypted.pdf', 'rb') as file:
+    #     data = file.read()
+    #     num_integers = len(data) // 4
+    #     ciphertext_in_file = struct.unpack(f"{num_integers}I", data)
+    #     plaintext = decrypt(private_key, ciphertext_in_file)
+    #     with open('test_decrypted.pdf', 'wb') as file:
+    #         file.write(plaintext)
 
     

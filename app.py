@@ -103,8 +103,8 @@ async def main(page: ft.Page):
     
     async def handleGenerateKey(e): # mengubah penampilan (done)
         key = rsa.generate_key_pair()
-        sender["privkey"]=key[0]
-        sender["pubkey"]=key[1]
+        sender["privkey"]=key[1]
+        sender["pubkey"]=key[0]
         print(sender["pubkey"])
         keyStatusText.value = "Ready"
         keySave.visible = True
@@ -140,7 +140,7 @@ async def main(page: ft.Page):
         return
     
     async def handleRcvTextSave(e):
-        if e.control.value == "Show decrypted message":
+        if e.control.text == "Show decrypted message":
             filename = f"/message_{int(time())}.bin"
             with open(e.path+filename,'wb') as f:
                 for i in sender["rcvCipher"]:
@@ -153,14 +153,10 @@ async def main(page: ft.Page):
     
     async def handleRcvFileSave(e):
 
-        filename = f"/message_{int(time())}.bin"
-        with open(e.path, 'rb') as f:
-            data = f.read()
-            num_integers = len(data) // 4
-            ciphertext_in_file = struct.unpack(f"{num_integers}I", data)
-            plaintext = rsa.decrypt(sender["privkey"], ciphertext_in_file)
-            with open(e.path+filename, 'wb') as f:
-                f.write(plaintext)
+        filename = f"/{sender['rcvFilename']}"
+        sender["rcvPlain"] = rsa.decrypt(sender["privkey"],sender["rcvCipher"])
+        with open(e.path+filename, 'wb') as f:
+            f.write(sender["rcvPlain"])
         return
     
     async def handleRcvRawSave(e):
@@ -182,15 +178,15 @@ async def main(page: ft.Page):
         return
 
     async def handleRcvText(e): # mengubah penampilan (done)
-        if e.control.value == "Show decrypted message": # butuh tambah decrypt di sini (done)
+        if e.control.text == "Show decrypted message": # butuh tambah decrypt di sini (done)
 
             sender["rcvPlain"] = rsa.decrypt(sender["privkey"], sender["rcvCipher"]).decode('utf-8')
             
             rcvTextBox.value = sender["rcvPlain"]
-            e.control.value = "Show original message"
+            e.control.tex = "Show original message"
         else:
             rcvTextBox.value = sender["rcvCipher"]
-            e.control.value = "Show decrypted message"
+            e.control.text = "Show decrypted message"
         rcvText.update()
         return
     
@@ -226,8 +222,8 @@ async def main(page: ft.Page):
             recipient["rcvCipher"] = rsa.encrypt(recipient["pubkey"],text_base64)
             recipient["rcvType"] = "text"
         else:
-            data_base64 = str(base64.b64encode((sender["sendFilename"]).encode('utf-8')).decode('utf-8'))
-            recipient["rcvCipher"] = rsa.encrypt(recipient["pubkey"], data_base64)
+            with open(sender["sendFilepath"], "rb") as f:
+                recipient["rcvCipher"] = rsa.encrypt(sender["friendkey"], base64.b64encode(f.read()).decode('utf-8'))
             recipient["rcvType"] = "file"
             recipient["rcvFilename"] = sender["sendFilename"]
         return
