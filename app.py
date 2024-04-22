@@ -99,6 +99,7 @@ async def main(page: ft.Page):
         keyStatusText.value = "Ready"
         keySend.visible = keySave.visible = True
         selfKey.update()
+        await alert(f"Private key successfully uploaded.")
         return
     
     async def handleGenerateKey(e):
@@ -109,6 +110,7 @@ async def main(page: ft.Page):
         keyStatusText.value = "Ready"
         keySend.visible = keySave.visible = True
         selfKey.update()
+        await alert(f"Private key successfully generated.")
         return
     
     async def handlePriKeySave(e):
@@ -116,12 +118,14 @@ async def main(page: ft.Page):
         key = (sender["pubkey"][0], sender["privkey"][0], sender["privkey"][1])
         with open(e.path+filename, "w") as f:
             f.write(str(key))
+        await alert(f"Successfully saved at {e.path+filename}")
         return
     
     async def handlePubKeySave(e):
         filename = f"/key_{int(time())}.pub"
         with open(e.path+filename, "w") as f:
             f.write(str(sender["pubkey"]))
+        await alert(f"Successfully saved at {e.path+filename}")
         return
     
     async def handleFriendKeyUpload(e):
@@ -131,12 +135,14 @@ async def main(page: ft.Page):
         friendKeyStatusText.value = "Ready"
         sendButtons.visible = friendKeySave.visible = True
         friendKey.update()
+        await alert(f"Friend public key successfully uploaded.")
         return
     
     async def handleFriendKeySave(e):
         filename = f"/key_{int(time())}.pub"
         with open(e.path+filename, "w") as f:
             f.write(str(sender["friendkey"]))
+        await alert(f"Successfully saved at {e.path+filename}")
         return
     
     async def handleRcvTextSave(e):
@@ -149,14 +155,15 @@ async def main(page: ft.Page):
             filename = f"/message_{int(time())}.txt"
             with open(e.path+filename,'w') as f:
                 f.write(sender["rcvPlain"])
+        await alert(f"Successfully saved at {e.path+filename}")
         return
     
     async def handleRcvFileSave(e):
-
         filename = f"/{sender['rcvFilename']}"
         sender["rcvPlain"] = rsa.decrypt(sender["privkey"],sender["rcvCipher"])
         with open(e.path+filename, 'wb') as f:
             f.write(sender["rcvPlain"])
+        await alert(f"Successfully decrypted & saved at {e.path+filename}")
         return
     
     async def handleRcvRawSave(e):
@@ -164,6 +171,7 @@ async def main(page: ft.Page):
         with open(e.path+filename,'wb') as f:
             for i in sender["rcvCipher"]:
                 f.write(struct.pack('I',i))
+        await alert(f"Successfully saved at {e.path+filename}")
         return
     
     async def handleSendFileUpload(e):
@@ -175,6 +183,7 @@ async def main(page: ft.Page):
     
     async def handleSendKey(e):
         recipient["friendkey"] = sender["pubkey"]
+        await alert("Public key successfully sent.")
         return
 
     async def handleRcvText(e):
@@ -211,7 +220,7 @@ async def main(page: ft.Page):
                 with open(e.path+filename, 'wb') as file:
                     for integer in ciphertext:
                         file.write(struct.pack('I', integer))
-            
+        await alert(f"Successfully encrypted & saved at {e.path+filename}")
         return
     
     async def handleEncryptSend(e):
@@ -229,7 +238,13 @@ async def main(page: ft.Page):
                 recipient["rcvCipher"] = rsa.encrypt(sender["friendkey"], base64.b64encode(f.read()).decode('utf-8'))
             recipient["rcvType"] = "file"
             recipient["rcvFilename"] = sender["sendFilename"]
+        await alert("Successfully encrypted & sent.")
         return
+    
+    async def alert(msg):
+        page.snack_bar.content = ft.Text(msg)
+        page.snack_bar.open = True
+        page.update()
     
     # Components
     
@@ -439,11 +454,6 @@ async def main(page: ft.Page):
     page.add(content)
     page.scroll = ft.ScrollMode.AUTO
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    # page.banner = ft.Banner(
-    #     content=ft.Text(""),
-    #     actions=[
-    #         ft.TextButton("x", on_click=close_banner),
-    #     ],
-    # )
+    page.snack_bar = ft.SnackBar(content=[])
 
 ft.app(target=main)
