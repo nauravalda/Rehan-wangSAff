@@ -71,11 +71,10 @@ async def main(page: ft.Page):
         elif sender["rcvType"] == "text":
             rcvText.visible = True
             rcvNone.visible = rcvFile.visible = False
-            base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
             cipherB64 = ""
             for i in sender["rcvCipher"]:
-                cipherB64 = cipherB64 + base64_chars[i]
-            rcvTextBox.value = cipherB64
+                cipherB64 = cipherB64 + str(i)
+            rcvTextBox.value = base64.b64encode(cipherB64.encode()).decode()
         else:
             rcvFile.visible = True
             rcvText.visible = rcvNone.visible = False
@@ -106,6 +105,7 @@ async def main(page: ft.Page):
         key = rsa.generate_key_pair()
         sender["privkey"]=key[0]
         sender["pubkey"]=key[1]
+        print(sender["pubkey"])
         keyStatusText.value = "Ready"
         keySave.visible = True
         selfKey.update()
@@ -218,8 +218,12 @@ async def main(page: ft.Page):
     async def handleEncryptSend(e): # butuh tambah decrypt di sini (done)
         nonlocal recipient
         if sendTextBox.visible:
-            text_base64 = str(base64.b64encode((sendTextBox.value).encode('utf-8')).decode('utf-8'))
-            recipient["rcvCipher"] = rsa.encrypt(recipient["pubkey"].text_base64)
+            print("TESTmeong")
+            print(sendTextBox.value)
+            text_base64 = base64.b64encode((sendTextBox.value).encode('utf-8')).decode('utf-8')
+            print(text_base64)
+            print(recipient["pubkey"])
+            recipient["rcvCipher"] = rsa.encrypt(recipient["pubkey"],text_base64)
             recipient["rcvType"] = "text"
         else:
             data_base64 = str(base64.b64encode((sender["sendFilename"]).encode('utf-8')).decode('utf-8'))
