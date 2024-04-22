@@ -115,7 +115,7 @@ async def main(page: ft.Page):
         filename = f"/key_{int(time())}.pri"
         key = (sender["pubkey"][0], sender["privkey"][0], sender["privkey"][1])
         with open(e.path+filename, "w") as f:
-            f.write(key)
+            f.write(str(key))
         return
     
     async def handlePubKeySave(e):
@@ -183,9 +183,12 @@ async def main(page: ft.Page):
             sender["rcvPlain"] = rsa.decrypt(sender["privkey"], sender["rcvCipher"]).decode('utf-8')
             
             rcvTextBox.value = sender["rcvPlain"]
-            e.control.tex = "Show original message"
+            e.control.text = "Show original message"
         else:
-            rcvTextBox.value = sender["rcvCipher"]
+            cipherB64 = ""
+            for i in sender["rcvCipher"]:
+                cipherB64 = cipherB64 + str(i)
+            rcvTextBox.value = base64.b64encode(cipherB64.encode()).decode()
             e.control.text = "Show decrypted message"
         rcvText.update()
         return
