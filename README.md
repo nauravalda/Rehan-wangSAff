@@ -2,7 +2,7 @@
 
 Program Algoritma RSA untuk Simulasi Enkripsi pada Aplikasi Percakapan (chat)
 
-#### Spesifikasi
+## Spesifikasi
 - Program dapat membangkitan kunci privat dan kunci publik
 - Kunci publik dan kunci privat dapat disimpan dalam file terpisah (*.pub dan *.pri)
 - Program dapat mengenkripsi file dan teks dengan RSA.
