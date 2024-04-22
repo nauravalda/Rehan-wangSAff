@@ -32,6 +32,8 @@ python3 app.py
 - Teks yang diterima ditampilkan pada layar sebagai cipherteks dan dapat didekripsi dengan menekan tombol "Show decrypted message" dan disimpan dengan menekan tombol "Save to file"
 - File yang diterima (terenkripsi) dapat diunduh dengan menekan tombol "Download encrypted file" dan disimpan hasil dekripsinya dengan menekan tombol "Download file"
 
+File apk: [wangsaff.apk](https://github.com/nauravalda/Rehan-wangSAff/releases/tag/v1.0.1)
+
 
 ## Anggota kelompok
 - Aufar Ramadhan 18221163
